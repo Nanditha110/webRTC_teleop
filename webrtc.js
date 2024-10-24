@@ -1,8 +1,9 @@
-// WebRTC variables
+/// WebRTC variables
 let localStream;
 let remoteStream;
 let pc1, pc2;
 let dataChannel;
+let selectedFile;
 
 // STUN server configuration
 const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
@@ -10,7 +11,6 @@ const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
 // Get references to HTML elements
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
-const startButton = document.getElementById('startButton');
 const callButton = document.getElementById('callButton');
 const hangupButton = document.getElementById('hangupButton');
 const fileInput = document.getElementById('fileInput');
@@ -19,20 +19,19 @@ const fileInput = document.getElementById('fileInput');
 callButton.disabled = true;
 hangupButton.disabled = true;
 
-// Event listeners for buttons
-startButton.addEventListener('click', start);
+// Event listeners
+fileInput.addEventListener('change', handleFileSelection);
 callButton.addEventListener('click', call);
 hangupButton.addEventListener('click', hangup);
-fileInput.addEventListener('change', handleFileSelection);
 
-// Step 1: Start capturing video from the webcam
-async function start() {
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true });
-    localVideo.srcObject = localStream;  // Display local video stream
-    callButton.disabled = false;         // Enable "Call" button
-  } catch (error) {
-    console.error('Error accessing media devices.', error);
+// Step 1: Handle file selection and prepare video for streaming
+function handleFileSelection(event) {
+  selectedFile = event.target.files[0];
+  if (selectedFile) {
+    const fileURL = URL.createObjectURL(selectedFile);
+    localVideo.src = fileURL;  // Load the video in the local player
+    localVideo.play();
+    callButton.disabled = false;  // Enable the "Call" button once a file is selected
   }
 }
 
@@ -55,8 +54,9 @@ async function call() {
     remoteVideo.srcObject = remoteStream;  // Display remote video stream
   };
 
-  // Add local video tracks to pc1 (which will be sent to pc2)
-  localStream.getTracks().forEach(track => pc1.addTrack(track, localStream));
+  // Create a MediaStream for pc1
+  localStream = localVideo.captureStream();  // Capture the video file as a MediaStream
+  localStream.getTracks().forEach(track => pc1.addTrack(track, localStream));  // Add tracks to pc1
 
   // Create a data channel on pc1 for file transfer
   dataChannel = pc1.createDataChannel('fileTransfer');
@@ -102,27 +102,19 @@ function hangup() {
   callButton.disabled = false;
 }
 
-// Step 4: Handle file selection and initiate file transfer
-function handleFileSelection(event) {
-  const file = event.target.files[0];
-  if (file && dataChannel) {
-    sendFile(file);  // Send the selected file in chunks
-  }
-}
-
-// Step 5: Send the file in chunks via the data channel
+// Step 4: Send the selected video file after streaming
+fileInput.addEventListener('change', handleFileSelection);
 function sendFile(file) {
   const chunkSize = 16384;  // 16KB chunks for efficient transfer
   let offset = 0;
   const reader = new FileReader();
 
   reader.onload = e => {
-    dataChannel.send(e.target.result);  // Send each file chunk
+    dataChannel.send(e.target.result);  // Send file chunk to the peer
     offset += e.target.result.byteLength;
 
-    // Continue reading the next chunk if the file is not fully sent
     if (offset < file.size) {
-      readSlice(offset);
+      readSlice(offset);  // Continue sending the next chunk
     } else {
       dataChannel.send('done');  // Signal that the file is fully sent
     }
