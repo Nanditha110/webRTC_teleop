@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebRTC Streaming and File Download</title>
+  <style>
+    video {
+      width: 300px;
+      height: 200px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>WebRTC Video Streaming & File Download</h2>
+
+<!-- Video elements for local and remote streams -->
+<video id="localVideo" autoplay playsinline muted></video>
+<video id="remoteVideo" autoplay playsinline></video>
+
+<!-- Input for file selection -->
+<input type="file" id="fileInput">
+
+<!-- Control buttons -->
+<button id="startButton">Start</button>
+<button id="callButton" disabled>Call</button>
+<button id="hangupButton" disabled>Hang Up</button>
+
+<!-- Script source for WebRTC -->
+<script src="webrtc.js"></script>
+
+</body>
+</html>
