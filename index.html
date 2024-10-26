@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Streaming with Recording</title>
+    <style>
+        video {
+            width: 320px;
+            height: 240px;
+            margin: 10px;
+            border: 1px solid black;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebRTC Streaming with Recording</h1>
+    <p></p>
+
+    <!-- Video elements for displaying local and remote streams -->
+    <video id="localVideo" playsinline autoplay muted></video>
+    <video id="remoteVideo" playsinline autoplay></video>
+
+    <!-- Control buttons for starting, calling, hanging up, and recording -->
+    <div class="controls">
+        <button id="startButton">Start</button>
+        <button id="callButton">Call</button>
+        <button id="hangupButton">Hang Up</button>
+    </div>
+
+    <!-- Info about recording and streaming -->
+    <p>Click "Start" to enable the local camera, "Call" to start the peer-to-peer connection and recording, and "Hang Up" to stop the call and download the recordings.</p>
+
+    <!-- Link to WebRTC adapter for cross-browser support -->
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    
+    <!-- Link to main JavaScript code -->
+    <script src="main.js"></script>
+</body>
+</html>
